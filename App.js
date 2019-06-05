@@ -7,24 +7,70 @@ import {
   StatusBar,
   ScrollView,
   FlatList,
+  TextInput,
+  Button,
+  KeyboardAvoidingView,
+  AsyncStorage,
 } from 'react-native';
 
+const TODO = "@todoapp.todo"
 const STATUSBAR_HEIGHT = Platform.OS == 'ios' ? 20 :StatusBar.currentHeight;
 
 export default class App extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      todo: [
-        {index: 1, title: "薬を飲む",done:false},
-        {index: 2, title: "薬を飲む2",done:false},
-      ],
-      currentIndex: 2,
+      todo: [],
+      currentIndex: 0,
+      inputText: "",
     }
   }
+  componentDidMount() {
+    this.loadTodo()
+  }
+  loadTodo = async() => {
+    try{
+      const todoString = await AsyncStorage.getItem(TODO)
+
+      if (todoString) {
+        const todo = JSON.parse(todoString)
+        const currentIndex = todo.length
+        this.setState({todo: todo,currentIndex: currentIndex})
+      }
+    }catch(e){
+      console.log(e)
+    }
+  }
+
+  saveTodo = async(todo) => {
+    try {
+      const todoString = JSON.stringify(todo)
+      await AsyncStorage.setItem(TODO,todoString)
+    }catch(e){
+      console.log(e)
+    }
+  }
+
+  onAddItem = () => {
+    const title = this.state.inputText
+
+    if (title == "") {
+      return
+    }
+    const index = this.state.currentIndex + 1
+    const newTodo = {index: index,title: title,done:false}
+    const todo = [...this.state.todo,newTodo]
+    this.setState({
+      todo: todo,
+      currentIndex: index,
+      inputText: "",
+    })
+    this.saveTodo(todo)
+  }
+
   render() {
     return (
-      <View style={styles.container}>
+      <KeyboardAvoidingView style={styles.container} behavior="padding">
         <View style={styles.filter}>
           <Text>filter</Text>
         </View>
@@ -35,9 +81,20 @@ export default class App extends React.Component {
           />
         </ScrollView>
         <View style={styles.input}>
-          <Text>input</Text>
+          <TextInput
+            onChangeText={(text) => this.setState({inputText: text})}
+            value={this.state.inputText}
+            style={styles.inputText}
+          />
+
+          <Button
+            onPress={this.onAddItem}
+            title="Add"
+            color="#841584"
+            style={styles.inputButton}
+          />
         </View>
-      </View>
+      </KeyboardAvoidingView>
     );
   }
 }
@@ -56,5 +113,12 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 30,
+    flexDirection: 'row',
+  },
+  inputText: {
+    flex: 1,
+  },
+  inputButton: {
+    width: 100
   }
 });
