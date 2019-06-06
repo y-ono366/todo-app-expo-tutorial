@@ -23,11 +23,14 @@ export default class App extends React.Component {
       todo: [],
       currentIndex: 0,
       inputText: "",
+      filterText: "",
     }
   }
+
   componentDidMount() {
     this.loadTodo()
   }
+
   loadTodo = async() => {
     try{
       const todoString = await AsyncStorage.getItem(TODO)
@@ -69,13 +72,23 @@ export default class App extends React.Component {
   }
 
   render() {
+    let filterText = this.state.filterText
+    let todo = this.state.todo
+    if(filterText !== "") {
+      todo = todo.filter(t => t.title.includes(filterText))
+    }
     return (
       <KeyboardAvoidingView style={styles.container} behavior="padding">
         <View style={styles.filter}>
-          <Text>filter</Text>
+          <TextInput
+            onChangeText={(text) => this.setState({filterText:text})}
+            value={this.state.filterText}
+            style={styles.inputText}
+            placeholder="Type filter text"
+          />
         </View>
         <ScrollView style={styles.todolist}>
-          <FlatList data={this.state.todo}
+          <FlatList data={todo}
             renderItem={({item}) => <Text>{item.title}</Text> }
             keyExtractor={(item,index) => "todo_" + item.index}
           />
