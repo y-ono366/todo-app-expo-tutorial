@@ -17,21 +17,28 @@ import {
   SearchBar,
   Input,
   Button,
+  ListItem,
 } from 'react-native-elements'
 
-import Icon from 'react-native-vector-icons/Feather';
+import FeatherIcon from 'react-native-vector-icons/Feather';
+
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 
 const TODO = "@todoapp.todo"
 const STATUSBAR_HEIGHT = Platform.OS == 'ios' ? 20 :StatusBar.currentHeight;
 
 const TodoItem = (props) => {
-  let textStyle = styles.todoItem
+  let icon = null
   if (props.done === true) {
-    textStyle = styles.todoItemDone
+    icon = <MaterialIcon name="done"/>
   }
   return (
     <TouchableOpacity onPress={props.onPressFunc}>
-      <Text style={textStyle}>{props.title}</Text>
+      <ListItem
+        title={props.title}
+        rightIcon={icon}
+        bottomDriver
+      />
     </TouchableOpacity>
   )
 }
@@ -139,7 +146,7 @@ export default class App extends React.Component {
 
           <Button
             icon={
-              <Icon
+              <FeatherIcon
                 name="plus"
                 size={30}
                 color='white'
