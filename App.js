@@ -13,6 +13,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
+import {ifIphoneX,getStatusBarHeight} from 'react-native-iphone-x-helper'
+
 import {
   SearchBar,
   Input,
@@ -25,7 +27,7 @@ import FeatherIcon from 'react-native-vector-icons/Feather';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 
 const TODO = "@todoapp.todo"
-const STATUSBAR_HEIGHT = Platform.OS == 'ios' ? 20 :StatusBar.currentHeight;
+const STATUSBAR_HEIGHT = getStatusBarHeight()
 
 const TodoItem = (props) => {
   let icon = null
@@ -151,7 +153,10 @@ export default class App extends React.Component {
                 size={30}
                 color='white'
               />
-            }
+              }
+              title=""
+              onPress={this.onAddItem}
+              buttonStyle={styles.inputButton}
           />
         </View>
       </KeyboardAvoidingView>
@@ -172,7 +177,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   input: {
-    height: 50,
+    ...ifIphoneX({
+      paddingBottom: 30,
+      height: 80,
+    },{
+      height: 50,
+    }),
+    height: 70,
     flexDirection: 'row',
     paddingRight: 10,
   },
