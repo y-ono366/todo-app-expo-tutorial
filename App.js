@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   StyleSheet,
   Text,
@@ -7,24 +8,39 @@ import {
   StatusBar,
   ScrollView,
   FlatList,
-  TextInput,
-  Button,
   KeyboardAvoidingView,
   AsyncStorage,
   TouchableOpacity,
 } from 'react-native';
 
+import {ifIphoneX,getStatusBarHeight} from 'react-native-iphone-x-helper'
+
+import {
+  SearchBar,
+  Input,
+  Button,
+  ListItem,
+} from 'react-native-elements'
+
+import FeatherIcon from 'react-native-vector-icons/Feather';
+
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+
 const TODO = "@todoapp.todo"
-const STATUSBAR_HEIGHT = Platform.OS == 'ios' ? 20 :StatusBar.currentHeight;
+const STATUSBAR_HEIGHT = getStatusBarHeight()
 
 const TodoItem = (props) => {
-  let textStyle = styles.todoItem
+  let icon = null
   if (props.done === true) {
-    textStyle = styles.todoItemDone
+    icon = <MaterialIcon name="done"/>
   }
   return (
     <TouchableOpacity onPress={props.onPressFunc}>
-      <Text style={textStyle}>{props.title}</Text>
+      <ListItem
+        title={props.title}
+        rightIcon={icon}
+        bottomDriver
+      />
     </TouchableOpacity>
   )
 }
@@ -99,16 +115,17 @@ export default class App extends React.Component {
     if(filterText !== "") {
       todo = todo.filter(t => t.title.includes(filterText))
     }
+    const platform = Platform.OS == 'ios' ? 'ios' : 'android'
     return (
       <KeyboardAvoidingView style={styles.container} behavior="padding">
-        <View style={styles.filter}>
-          <TextInput
-            onChangeText={(text) => this.setState({filterText:text})}
-            value={this.state.filterText}
-            style={styles.inputText}
-            placeholder="Type filter text"
-          />
-        </View>
+        <SearchBar
+          platform={platform}
+          cancelButtonTitle="Cancel"
+          onChangeText={(text) => this.setState({filterText: text})}
+          onClear={() => this.setState({filterText: ""})}
+          value={this.state.filterText}
+          placeholder="type filter text"
+        />
         <ScrollView style={styles.todolist}>
           <FlatList data={todo}
             extraData={this.state}
@@ -123,17 +140,23 @@ export default class App extends React.Component {
           />
         </ScrollView>
         <View style={styles.input}>
-          <TextInput
+          <Input
             onChangeText={(text) => this.setState({inputText: text})}
             value={this.state.inputText}
-            style={styles.inputText}
+            containerStyle={styles.inputText}
           />
 
           <Button
-            onPress={this.onAddItem}
-            title="Add"
-            color="#841584"
-            style={styles.inputButton}
+            icon={
+              <FeatherIcon
+                name="plus"
+                size={30}
+                color='white'
+              />
+              }
+              title=""
+              onPress={this.onAddItem}
+              buttonStyle={styles.inputButton}
           />
         </View>
       </KeyboardAvoidingView>
@@ -154,14 +177,28 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   input: {
-    height: 30,
+    ...ifIphoneX({
+      paddingBottom: 30,
+      height: 80,
+    },{
+      height: 50,
+    }),
+    height: 70,
     flexDirection: 'row',
+    paddingRight: 10,
   },
   inputText: {
+    paddingLeft: 10,
+    paddingRight: 10,
     flex: 1,
   },
   inputButton: {
-    width: 100
+    width: 48,
+    height: 48,
+    borderWidth: 0,
+    borderRadius: 48,
+    borderColor: 'transparent',
+    backgroundColor: '#ff6347',
   },
   todoItem: {
     fontSize: 20,
