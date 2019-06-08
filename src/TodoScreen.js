@@ -1,4 +1,6 @@
 import React from 'react';
+import { connect } from 'react-redux'
+import { addTodo,toggleTodo } from './actionCreators'
 
 import {
   StyleSheet,
@@ -45,41 +47,13 @@ const TodoItem = (props) => {
   )
 }
 
-export default class App extends React.Component {
+// export default class App extends React.Component {
+class TodoScreen extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      todo: [],
-      currentIndex: 0,
       inputText: "",
       filterText: "",
-    }
-  }
-
-  componentDidMount() {
-    this.loadTodo()
-  }
-
-  loadTodo = async() => {
-    try{
-      const todoString = await AsyncStorage.getItem(TODO)
-
-      if (todoString) {
-        const todo = JSON.parse(todoString)
-        const currentIndex = todo.length
-        this.setState({todo: todo,currentIndex: currentIndex})
-      }
-    }catch(e){
-      console.log(e)
-    }
-  }
-
-  saveTodo = async(todo) => {
-    try {
-      const todoString = JSON.stringify(todo)
-      await AsyncStorage.setItem(TODO,todoString)
-    }catch(e){
-      console.log(e)
     }
   }
 
@@ -89,29 +63,19 @@ export default class App extends React.Component {
     if (title == "") {
       return
     }
-    const index = this.state.currentIndex + 1
-    const newTodo = {index: index,title: title,done:false}
-    const todo = [...this.state.todo,newTodo]
+    this.props.addTodo(title)
     this.setState({
-      todo: todo,
-      currentIndex: index,
       inputText: "",
     })
-    this.saveTodo(todo)
   }
 
   onTapTodoItem = (todoItem) => {
-    const todo = this.state.todo
-    const index = todo.indexOf(todoItem)
-    todoItem.done = !todoItem.done
-    todo[index] = todoItem
-    this.setState({todo: todo})
-    this.saveTodo(todo)
+    this.props.toggleTodo(todoItem)
   }
 
   render() {
-    let filterText = this.state.filterText
-    let todo = this.state.todo
+    const filterText = this.state.filterText
+    let todo = this.props.todo
     if(filterText !== "") {
       todo = todo.filter(t => t.title.includes(filterText))
     }
@@ -209,3 +173,22 @@ const styles = StyleSheet.create({
     backgroundColor: "red",
   }
 });
+
+const mapStateToProps = state => {
+  return {
+    todos: state.todos.todos,
+  }
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    addTodo(text) {
+      dispatch(addTodo(text))
+    },
+    toggleTodo(todo) {
+      dispatch(toggleTodo(todo))
+    }
+  }
+}
+
+export default connect(mapStateToProps,mapDispatchToProps)(TodoScreen)
