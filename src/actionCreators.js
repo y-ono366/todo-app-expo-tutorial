@@ -2,14 +2,14 @@ import { TODO } from './actions'
 
 export const addTodo = (text) => {
   return {
-    todo: TODO.ADD,
+    type: TODO.ADD,
     text
   }
 }
 
 export const toggleTodo = (todo) => {
   return {
-    todo: TODO.TOGGEL,
+    type: TODO.TOGGLE,
     todo,
   }
 }
